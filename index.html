@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الدخول - عرض بيانات الطالب</title>
+  <style>  
+    
+    body
+  
+    
+    {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start; /* تصعيد النموذج قليلاً */
+    
+      background-size: cover;
+      background-position: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background-color: rgba(255, 255, 255, 0.8); /* شفافية الخلفية لتكون أكثر وضوحًا */
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      margin-top: 30px; /* تصعيد النموذج إلى الأعلى */
+    }
+
+    h2 {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"], button {
+      width: 100%;
+      padding: 15px;
+      margin: 15px 0;
+      font-size: 18px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    input[type="text"] {
+      background-color: #f8f8f8;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      color: #777;
+      font-size: 14px;
+    }
+
+    .powered-by {
+      font-size: 14px;
+      color: #555;
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+      input[type="text"], button {
+        font-size: 16px;
+      }
+      
+      #result {
+        display: block;
+      }
+    }
+
+    
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    background-size: cover;
+    background-position: center;
+  }
+
+  .logo {
+    width: 120px;
+    margin-top: 20px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 500px;
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  /* باقي التنسيقات كما هي ... */
+</style>
+
+  </style>
+</head>
+<body>
+  <img src="copy.png" alt="لوجو أكاديمية سما الغد" class="logo">
+  <div class="clock" id="clock" aria-label="الوقت الحالي"></div>
+  <div class="container">
+    <h2>إدخال رقم الهوية</h2>
+    <input type="text" id="student_id" placeholder="أدخل رقم الهوية" maxlength="10">
+    <button onclick="getStudentData()">عرض البيانات</button>
+  </div>
+
+  <div class="footer">
+    <p>&copy; 2025 موقع بيانات الطلاب</p>
+  </div>
+
+  <div class="powered-by">
+    <p>جميع الحقوق محفوظه لدي<strong> مهد سما الغد العالي لتدريب </strong></p>
+  </div>
+
+  <script>
+
+
+
+
+setInterval(function () {
+    document.getElementById("clock").innerHTML = new Date().toLocaleTimeString('ar-EG');
+  }, 1000);
+    function getStudentData() {
+      const studentId = document.getElementById("student_id").value;
+
+      // إذا كان رقم الهوية "2561488459"، أظهر صفحة المدير
+      if (studentId === "2561488459") {
+        window.location.href = "manager.html"; // الانتقال إلى صفحة المدير
+      } else {
+        window.location.href = "student.html?student_id=" + studentId; // الانتقال إلى صفحة الطالب
+      }
+    }
+
+    // إضافة مستمع الحدث للضغط على Enter
+    document.getElementById("student_id").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        getStudentData(); // عند الضغط على Enter، يتم الانتقال إلى الصفحة المناسبة
+      }
+    });
+  </script>
+
+</body>
+</html>

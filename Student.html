@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> تيجة المتدربين - مهد سما الغد العالي لتدريب </title>
+
+  <!-- مكتبة تحويل إلى PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    body {
+      .logo {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 100px; /* يمكنك تغيير الحجم حسب الحاجة */
+  opacity: 0.8; /* يمكنك تعديل الشفافية إذا أردت */
+}
+
+      font-family: 'Arial', sans-serif;
+      direction: rtl;
+      background-color: #f4f4f4;
+      padding: 30px;
+    
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .container {
+      max-width: 750px;
+      margin: auto;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      font-size: 24px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 20px;
+      color: #333;
+    }
+
+    .header .student-name {
+      text-align: left;
+    }
+
+    .header .student-id {
+      text-align: right;
+    }
+
+    .input-section {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    input, button {
+      padding: 12px;
+      font-size: 16px;
+      margin-top: 10px;
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .retry {
+      text-align: center;
+      margin-top: 20px;
+      color: red;
+    }
+
+    .seal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-50%);
+      width: 300px;
+      opacity: 0.3;
+      z-index: 10;
+    }
+
+    .seal-text {
+      position: absolute;
+      bottom: -30px;
+      right: 10px;
+      font-size: 18px;
+      color: #333;
+      font-weight: bold;
+      z-index: 20;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .gpa-container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-top: 30px;
+      text-align: center;
+      font-size: 20px;
+    }
+
+    .gpa {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #28a745;
+      text-align: center;
+      padding: 15px;
+      background-color: #f2f9f2;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      font-size: 24px;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .print-btn {
+      width: 48%;
+      font-size: 18px;
+      padding: 15px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+      font-weight: 500;
+    }
+
+    .print-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .print-btn:active {
+      transform: translateY(1px);
+    }
+
+    .print-btn:first-child {
+      background: linear-gradient(145deg, #4f83cc, #3a6fa5);
+      color: white;
+    }
+
+    .print-btn:last-child {
+      background: linear-gradient(145deg, #34c38f, #28a745);
+      color: white;
+    }
+
+    .clock {
+      position: absolute;
+      left: 30px;
+      top: 30px;
+      font-size: 18px;
+      color: #333;
+      font-weight: bold;
+      z-index: 15;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: #333;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    @media print {
+      body {
+        background: none;
+      }
+      .container {
+        box-shadow: none;
+      }
+      #studentId, #confirmButton, .retry, .button-container {
+        display: none;
+      }
+      .seal {
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        width: 300px;
+        opacity: 0.3;
+      }
+      .seal-text {
+        display: block;
+        position: absolute;
+        bottom: -30px;
+        right: 10px;
+        font-size: 18px;
+        color: #333;
+        font-weight: bold;
+      }
+      #result {
+        display: block;
+      }
+      #notFound, #retryMessage, #studentId, #confirmButton {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <img src="copy.png" alt="لوجو أكاديمية سما الغد" class="logo">
+
+  <!-- ساعة الوقت -->
+  <div class="clock" id="clock" aria-label="الوقت الحالي"></div>
+
+  <div class="container">
+    <h2>نتيجة المتدربين - مهد سما الغد العالي لتدريب </h2>
+
+    <div class="input-section">
+     
+      <input type="text" id="studentIdInput" placeholder="ادخل رقم الهوية" maxlength="10" aria-label="أدخل رقم الهوية الطالب">
+      <button id="confirmButton" onclick="confirmId()" aria-label="تأكيد رقم الهوية">تأكيد</button>
+    </div>
+
+    <div id="retryMessage" class="retry">يرجى إعادة كتابة رقم الهوية لتأكيده.</div>
+
+    <div id="result" class="hidden" aria-live="polite">
+      <!-- الختم -->
+      <img src="ختم جازاان (1).png" alt="ختم النتيجة من أكاديمية سما الغد" class="seal">
+      <div class="seal-text">جميع الحقوق محفوظة لدى سما الغد</div>
+
+      <!-- عرض معلومات الطالب -->
+      <div class="header">
+        <div class="student-name" id="studentName">الاسم: </div>
+      </div>
+
+      <div class="header">
+        <div class="student-id" id="studentIdText">رقم الهوية: </div>
+      </div>
+
+      <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <thead>
+          <tr>
+            <th scope="col" style="border: 1px solid #ddd; padding: 8px; text-align: center;">المادة</th>
+            <th scope="col" style="border: 1px solid #ddd; padding: 8px; text-align: center;">الساعات</th>
+            <th scope="col" style="border: 1px solid #ddd; padding: 8px; text-align: center;">الدرجة</th>
+            <th scope="col" style="border: 1px solid #ddd; padding: 8px; text-align: center;">التقدير</th>
+            <th scope="col" style="border: 1px solid #ddd; padding: 8px; text-align: center;">الرمز</th>
+            <th scope="col" style="border: 1px solid #ddd; padding: 8px; text-align: center;">الوزن</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+
+      <!-- المعدل الفصلي -->
+      <div class="gpa-container">
+        <div class="gpa" id="gpa"></div>
+      </div>
+
+      <div class="button-container">
+        <button class="print-btn" onclick="window.print()" aria-label="طباعة النتيجة">🖨️ طباعة النتيجة</button>
+        <button class="print-btn" onclick="downloadPDF()" aria-label="حفظ النتيجة كملف PDF">📄 حفظ كـ PDF</button>
+      </div>
+    </div>
+
+    <div id="notFound" class="hidden" style="color: red; text-align: center; margin-top: 15px;">
+      رقم الهوية غير موجود
+    </div>
+  </div>
+
+  <div class="footer">
+    
+  </div>
+
+  <script>
+
+// تفعيل زر التأكيد عند الضغط على Enter
+document.getElementById("studentIdInput").addEventListener("keypress", function(event) {
+  if (event.key === "Enter") {
+    event.preventDefault(); // يمنع تنفيذ أي سلوك افتراضي
+    confirmId(); // ينفذ دالة تأكيد رقم الهوية
+  }
+});
+
+
+
+    const studentData = {
+  
+      "1109294619": {
+    name: "ابتسام محمد حسن شوك",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 85 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 84 },
+      { subject: "الرياضيات", hours: 3, grade: 89 }
+    ]
+  },
+  "1120671944": {
+    name: "أمواج احمد سلمان زیلعي مجرشي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 100 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 100 },
+      { subject: "الرياضيات", hours: 3, grade: 98 }
+    ]
+  },
+  "1121662694": {
+    name: "آمنه محمد احمد حفظي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 95 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 95 },
+      { subject: "الرياضيات", hours: 3, grade: 100 }
+    ]
+  },
+  "1115267906": {
+    name: "جمیلھ جابر معبر الریثي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 98 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 88 },
+      { subject: "الرياضيات", hours: 3, grade: 89 }
+    ]
+  },
+  "1084668696": {
+    name: "رباب یحیى حسین مساوي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 98 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 100 },
+      { subject: "الرياضيات", hours: 3, grade: 95 }
+    ]
+  },
+  "1126861101": {
+    name: "رتاج جبریل علي حسني",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 96 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 94 },
+      { subject: "الرياضيات", hours: 3, grade: 93 }
+    ]
+  },
+  "1131269514": {
+    name: "رتاج علي محمد حكمي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 94 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 89 },
+      { subject: "الرياضيات", hours: 3, grade: 90 }
+    ]
+  },
+  "1141619716": {
+    name: "رزان احمد حسن الشیخ",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 94 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 87 },
+      { subject: "الرياضيات", hours: 3, grade: 85 }
+    ]
+  },
+  "1130070418": {
+    name: "رھام ولید محمد قاسمي حمدي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 88 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 97 },
+      { subject: "الرياضيات", hours: 3, grade: 97 }
+    ]
+  },
+  "1098550377": {
+    name: "سوسن احمد ھادي مطاعن",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 82 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 80 },
+      { subject: "الرياضيات", hours: 3, grade: 86 }
+    ]
+  },
+  "1119736237": {
+    name: "صالحھ مضواح معبر الحنشي الریثي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 96 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 92 },
+      { subject: "الرياضيات", hours: 3, grade: 93 }
+    ]
+  },
+  "1136240932": {
+    name: "فاطمھ عالالله حاوي مغفوري",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 96 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 80 },
+      { subject: "الرياضيات", hours: 3, grade: 100 }
+    ]
+  },
+  "1062178791": {
+    name: "لیلي خالد محمد حكمي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 100 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 89 },
+      { subject: "الرياضيات", hours: 3, grade: 76 }
+    ]
+  },
+  "1124035401": {
+    name: "مریم محمد جابر خردلي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 98 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 89 },
+      { subject: "الرياضيات", hours: 3, grade: 95 }
+    ]
+  },
+  "1124221795": {
+    name: "ندین حاوي عالالله مغفوري",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 95 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 93 },
+      { subject: "الرياضيات", hours: 3, grade: 76 }
+    ]
+  },
+  "1107317628": {
+    name: "نور محمد یحي احمد زقمھ",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 90 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 100 },
+      { subject: "الرياضيات", hours: 3, grade: 91 }
+    ]
+  },
+  "1130560954": {
+    name: "نورھان احمد حسن الشیخ",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 90 },
+      { subject: "لغة إنجليزية (1)", hours: 3, grade: 92 },
+      { subject: "الرياضيات", hours: 3, grade: 94 }
+    ]
+  },
+  "1114601394": { name: "ابتسام محمد علي حكمي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 82 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 64 }, { subject: "الرياضيات", hours: 3, grade: 70 } ] },
+  "1134481678": { name: "ابرار حسین محمد عریبي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 87 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 68 }, { subject: "الرياضيات", hours: 3, grade: 84 } ] },
+  "1096258502": { name: "افنان عرار محمد ابو شنب", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 87 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 90 }, { subject: "الرياضيات", hours: 3, grade: 92 } ] },
+  "1106037524": { name: "العنود تركي عبده بداحي مغفوري", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 74 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 61 }, { subject: "الرياضيات", hours: 3, grade: 87 } ] },
+  "1119431045": { name: "الینا جبران علي فارسي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 93 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 62 }, { subject: "الرياضيات", hours: 3, grade: 80 } ] },
+  "1121002487": { name: "أزھار علي قاسم الداثري الفیفي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 99 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 100 }, { subject: "الرياضيات", hours: 3, grade: 100 } ] },
+  "1102771803": { name: "أفراح علي محمد حمیران معشي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 97 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 92 }, { subject: "الرياضيات", hours: 3, grade: 96 } ] },
+  "1130928631": { name: "أفیاء علي یحیى حكمي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 98 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 92 }, { subject: "الرياضيات", hours: 3, grade: 85 } ] },
+  "1116772821": { name: "أنوار طالل یحي مكرمي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 86 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 80 }, { subject: "الرياضيات", hours: 3, grade: 83 } ] },
+  "1095790885": { name: "تھاني علي قاسم بعیطي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 100 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 100 }, { subject: "الرياضيات", hours: 3, grade: 100 } ] },
+  "1095507933": { name: "حلیمه احمد مقبول جندلي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 98 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 91 }, { subject: "الرياضيات", hours: 3, grade: 96 } ] },
+  "1084292349": { name: "حیاه محمد خیري سوادي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 100 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 100 }, { subject: "الرياضيات", hours: 3, grade: 100 } ] },
+  "1138101777": { name: "خلود حسن عبدالله عبد الخالق", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 94 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 70 }, { subject: "الرياضيات", hours: 3, grade: 94 } ] },
+  "1093137428": { name: "خلود منصور خیري سفیاني", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 93 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 99 }, { subject: "الرياضيات", hours: 3, grade: 98 } ] },
+  "1118981289": { name: "رزان محمد ھادي حكمي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 84 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 64 }, { subject: "الرياضيات", hours: 3, grade: 83 } ] },
+  "1130472788": { name: "رھف محمود محسن مشرقي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 89 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 85 }, { subject: "الرياضيات", hours: 3, grade: 90 } ] },
+  "1117384014": { name: "روابي یحي حسین حكمي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 89 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 80 }, { subject: "الرياضيات", hours: 3, grade: 88 } ] },
+  "1130168279": { name: "ریھام محمود محسن مشرقي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 92 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 96 }, { subject: "الرياضيات", hours: 3, grade: 100 } ] },
+  "1118003837": { name: "شھد احمد زبیر زبیر", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 88 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 94 }, { subject: "الرياضيات", hours: 3, grade: 90 } ] },
+  "1137933832": { name: "شیماء عبده علي صالح", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 84 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 83 }, { subject: "الرياضيات", hours: 3, grade: 90 } ] },
+  "1129880538": { name: "صالحھ موسي عبده تھامي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 85 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 67 }, { subject: "الرياضيات", hours: 3, grade: 98 } ] },
+  "1108513670": { name: "غدي عیسى حسین دقدقي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 99 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 100 }, { subject: "الرياضيات", hours: 3, grade: 94 } ] },
+  "1092215001": { name: "غنیھ عواجي سلطان منقري", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 98 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 84 }, { subject: "الرياضيات", hours: 3, grade: 88 } ] },
+  "1111051742": { name: "غنیھ محمد جابر خردلي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 92 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 75 }, { subject: "الرياضيات", hours: 3, grade: 92 } ] },
+  "1131979179": { name: "مریم شوك ولي عقیل حكمي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 94 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 81 }, { subject: "الرياضيات", hours: 3, grade: 82 } ] },
+  "1102926654": { name: "مھا احمد یحي عمري غزواني", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 95 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 90 }, { subject: "الرياضيات", hours: 3, grade: 94 } ] },
+  "1120099930": { name: "میعاد یحي حسین حكمي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 97 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 93 }, { subject: "الرياضيات", hours: 3, grade: 83 } ] },
+  "1073992347": { name: "ندي حسین عبداللھ طمیحي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 80 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 82 }, { subject: "الرياضيات", hours: 3, grade: 95 } ] },
+  "1095671200": { name: "ھالة عبده إبراھیم سھلي", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 100 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 100 }, { subject: "الرياضيات", hours: 3, grade: 100 } ] },
+  "1123185181": { name: "ھدى عبده حسن احمد ابو راسین", level: "المستوى الأول", courses: [ { subject: "مبادئ إدارة الأعمال", hours: 4, grade: 80 }, { subject: "لغة إنجليزية (1)", hours: 3, grade: 94 }, { subject: "الرياضيات", hours: 3, grade: 80 } ] },
+
+  "1134456068": {
+    name: "ازھار یحي احمد جساس",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 78 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 70 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 92 }
+    ]
+  },
+  "1115226902": {
+    name: "اسراء موسى عساف عسیري",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 92 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 92 }
+    ]
+  },
+  "1127045753": {
+    name: "جمیلة عبده علي سالمي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 85 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 90 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 94 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 90 }
+    ]
+  },
+  "1066236157": {
+    name: "خدیجة محمد احمد غبري",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 65 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 88 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 95 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 60 }
+    ]
+  },
+  "1101586830": {
+    name: "رحاب حسین احمد عقیش",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 92 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 98 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 100 }
+    ]
+  },
+  "1139686834": {
+    name: "رغد محمد احمد الزیلعي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 95 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 98 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 99 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 90 }
+    ]
+  },
+  "1126933363": {
+    name: "ریماس سعید محمد شقیقي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 93 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 100 }
+    ]
+  },
+  "1121689663": {
+    name: "سارة محمد سلمان عبدلي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 96 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 96 }
+    ]
+  },
+  "1139371007": {
+    name: "شھد محمد موسى معیدي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 85 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 99 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 98 }
+    ]
+  },
+  "1098719592": {
+    name: "صالحه یحي محمد محسني",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 89 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 85 }
+    ]
+  },
+  "1064826868": {
+    name: "عائشه علي محمد المحلي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 96 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 85 }
+    ]
+  },
+  "1094185889": {
+    name: "فاطمة یاسین علي عداوي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 82 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 94 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 88 }
+    ]
+  },
+  "1124975242": {
+    name: "فاطمه طه محمد الحربي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 77 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 94 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 96 }
+    ]
+  },
+  "1020057459": {
+    name: "فاطمه علي محمد المحلي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 96 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 85 }
+    ]
+  },
+  "1135506549": {
+    name: "لمیس احمد عیسى غازي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 83 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 97 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 100 }
+    ]
+  },
+  "1091803922": {
+    name: "ندى احمد عیسى حفظي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 80 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 98 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 96 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 96 }
+    ]
+  },
+  "1123664821": {
+    name: "ھیاء علي یحي فقیھي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 88 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 96 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 94 }
+    ]
+  },
+  "1132408798": {
+    name: "وسن خلوفه حسین خواجي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 98 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 99 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 96 }
+    ]
+  },
+  "1134456068": {
+    name: "ازھار یحي احمد جساس",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 78 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 70 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 92 }
+    ]
+  },
+  "1115226902": {
+    name: "اسراء موسى عساف عسیري",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 92 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 92 }
+    ]
+  },
+  "1127045753": {
+    name: "جمیلة عبده علي سالمي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 85 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 90 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 94 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 90 }
+    ]
+  },
+  "1066236157": {
+    name: "خدیجة محمد احمد غبري",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 65 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 88 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 95 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 60 }
+    ]
+  },
+  "1101586830": {
+    name: "رحاب حسین احمد عقیش",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 92 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 98 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 100 }
+    ]
+  },
+  "1139686834": {
+    name: "رغد محمد احمد الزیلعي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 95 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 98 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 99 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 90 }
+    ]
+  },
+  "1126933363": {
+    name: "ریماس سعید محمد شقیقي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 93 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 100 }
+    ]
+  },
+  "1121689663": {
+    name: "سارة محمد سلمان عبدلي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 96 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 96 }
+    ]
+  },
+  "1139371007": {
+    name: "شھد محمد موسى معیدي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 85 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 99 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 98 }
+    ]
+  },
+  "1098719592": {
+    name: "صالحه یحي محمد محسني",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 89 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 85 }
+    ]
+  },
+  "1064826868": {
+    name: "عائشھ علي محمد المحلي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 96 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 85 }
+    ]
+  },
+  "1094185889": {
+    name: "فاطمة یاسین علي عداوي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 82 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 94 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 88 }
+    ]
+  },
+  "1124975242": {
+    name: "فاطمھ طه محمد الحربي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 77 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 94 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 96 }
+    ]
+  },
+  "1020057459": {
+    name: "فاطمه علي محمد المحلي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 96 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 85 }
+    ]
+  },
+  "1135506549": {
+    name: "لمیس احمد عیسى غازي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 83 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 97 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 100 }
+    ]
+  },
+  "1091803922": {
+    name: "ندى احمد عیسى حفظي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 80 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 98 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 96 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 96 }
+    ]
+  },
+  "1123664821": {
+    name: "ھیاء علي یحي فقیھي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 88 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 96 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 100 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 94 }
+    ]
+  },
+  "1132408798": {
+    name: "وسن خلوفه حسین خواجي",
+    level: "المستوى الأول",
+    courses: [
+      { subject: "مبادئ ادارة موارد بشریة", hours: 4, grade: 98 },
+      { subject: "التوجیة المھني والتمیز", hours: 3, grade: 100 },
+      { subject: "الكتابة الفنیة", hours: 3, grade: 99 },
+      { subject: "مقدمة تطبیقات الحاسب", hours: 3, grade: 96 }
+    ]
+  },
+  "1134548575": { name: "اثار محمد احمد ماطري", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 100 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 100 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1127982195": { name: "اضواء حسن احمد سلطان", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 100 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 88 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1136905567": { name: "العنود أبوطالب حسین ھزازي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 98 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 89 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1079545081": { name: "اماني احمد محمد مدربش", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 98 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 98 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 98 } ] },
+  "1152133391": { name: "أریج سعید فیصل القحطاني", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 100 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 100 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1120634025": { name: "جواھر یحي أحمد حمدي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 95 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 95 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 95 } ] },
+  "1107162982": { name: "ذكرى علي محمد وشیلي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 93 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 100 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 98 } ] },
+  "2196604959": { name: "رھام علي عبید حسین", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 95 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 90 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1148258567": { name: "رھف محمد خالد حكمي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 99 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 100 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1117736494": { name: "ریم ناصر فرحان المدري الفیفي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 96 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 100 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1125650190": { name: "ساره احمد شوغي ازیبي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 95 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 95 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1133149169": { name: "سدیم نزار علي بكري", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 98 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 86 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1094153887": { name: "سمیرة علي فایع عسیري", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 95 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 98 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1122280793": { name: "سمیرة محسن یحي طوھري", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 90 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 100 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1058858299": { name: "شاره الحق عبداللھ حقوي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 100 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 93 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 90 } ] },
+  "1131419812": { name: "شذى محمد ھادي مغفوري", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 90 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 90 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 90 } ] },
+  "1124811140": { name: "شوق سلطان مطر الشمري", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 95 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 95 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 95 } ] },
+  "1150227807": { name: "شوق علي ھادي عامري", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 90 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 100 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 98 } ] },
+  "1087499891": { name: "عائشھ محمد اسماعیل ابوشنب", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 100 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 98 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 96 } ] },
+  "1070035587": { name: "عبیر احمد عطیھ حكمي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 96 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 100 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+
+
+  "1078862164": { name: "فاطمة احمد محمد قطبي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 98 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 100 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1126733342": { name: "فاطمه احمد احمد شاجري", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 100 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 87 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1073031807": { name: "لیان علي یحى مدخلي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 85 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 85 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 85 } ] },
+  "1100188976": { name: "لیلى ابراھیم محمد مقبولي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 90 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 90 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 90 } ] },
+  "1129047534": { name: "مرام جائز عوض المطیري", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 98 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 98 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 98 } ] },
+  "1150622312": { name: "مریم حسین احمد عواف", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 70 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 84 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1121179020": { name: "میرا أحمد زید مغفوري", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 95 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 78 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1115262139": { name: "نادین ناصر محمد احمدیني", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 95 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 100 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1126793536": { name: "نجود یحي محمد الغبري", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 92 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 90 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 98 } ] },
+  "1131774158": { name: "نھى یحي حسین عطیف", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 100 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 98 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 98 } ] },
+  "1105852964": { name: "نوره حسن علي مغفوري", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 98 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 90 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1127388500": { name: "نوره محمد یحي الغبري", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 98 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 88 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1115098343": { name: "نوره موسى احمد حكمي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 100 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 99 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1127615282": { name: "نوف یحى محمد حمدي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 100 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 100 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1098961327": { name: "ھدى علي احمد شراحیلي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 100 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 100 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 100 } ] },
+  "1055147423": { name: "ھدیل عبدالله عبدالرحمن الحلوي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 90 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 90 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 95 } ] },
+  "1068984085": { name: "ھیا عبدالله احمد شویھي", level: "المستوى الأول", courses: [ { subject: "مقدمة في الإحصاء", hours: 3, grade: 90 }, { subject: "تخطيط الموارد البشرية", hours: 3, grade: 90 }, { subject: "تحليل وتقييم الوظائف", hours: 3, grade: 95 } ] },
+};
+
+
+    function getGradeInfo(grade) {
+      if (grade >= 95) return { rating: "ممتاز مرتفع", symbol: "أ+", weight: 5 };
+      if (grade >= 90) return { rating: "ممتاز", symbol: "أ", weight: 4.75 };
+      if (grade >= 85) return { rating: "جيد جداً مرتفع", symbol: "ب+", weight: 4.5 };
+      if (grade >= 80) return { rating: "جيد جداً", symbol: "ب", weight: 4 };
+      if (grade >= 75) return { rating: "جيد", symbol: "ج+", weight: 3.5 };
+      if (grade >= 70) return { rating: "مقبول", symbol: "ج", weight: 3 };
+      return { rating: "ضعيف", symbol: "د", weight: 1 };
+    }
+
+    function confirmId() {
+      const studentId = document.getElementById("studentIdInput").value;
+      const student = studentData[studentId];
+      if (student) {
+        document.getElementById("retryMessage").classList.add("hidden");
+        document.getElementById("result").classList.remove("hidden");
+        document.getElementById("studentName").innerHTML = `الاسم: ${student.name}`;
+        document.getElementById("studentIdText").innerHTML = `رقم الهوية: ${studentId}`;
+        
+        
+        // إخفاء حقل الإدخال وزر التأكيد بعد عرض النتيجة
+        document.getElementById("studentIdInput").classList.add("hidden");
+        document.getElementById("confirmButton").classList.add("hidden");
+
+        const resultBody = document.getElementById("resultBody");
+        resultBody.innerHTML = '';
+        let totalWeight = 0, totalHours = 0;
+
+        student.courses.forEach(course => {
+          const { rating, symbol, weight } = getGradeInfo(course.grade);
+          resultBody.innerHTML += `
+            <tr>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${course.subject}</td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${course.hours}</td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${course.grade}</td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${rating}</td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${symbol}</td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${weight}</td>
+            </tr>
+          `;
+          totalWeight += weight * course.hours;
+          totalHours += course.hours;
+        });
+
+        const gpa = (totalWeight / totalHours).toFixed(2);
+        document.getElementById("gpa").innerHTML = `المعدل الفصلي: ${gpa}`;
+      } else {
+        document.getElementById("notFound").classList.remove("hidden");
+      }
+    }
+
+    function downloadPDF() {
+      const element = document.querySelector(".container");
+      html2pdf(element);
+    }
+
+    setInterval(function () {
+      document.getElementById("clock").innerHTML = new Date().toLocaleTimeString('ar-EG');
+    }, 1000);
+  </script>
+
+</body>
+</html>
